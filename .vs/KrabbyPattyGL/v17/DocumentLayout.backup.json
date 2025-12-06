@@ -1,12 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\FTN\\Computer Graphics\\KrabbyPattyGL\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{6EECF44A-001F-42A3-91F3-62168F9E8C1D}|KrabbyPattyGL.vcxproj|D:\\FTN\\Computer Graphics\\KrabbyPattyGL\\Source\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{6EECF44A-001F-42A3-91F3-62168F9E8C1D}|KrabbyPattyGL.vcxproj|solutionrelative:Source\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -14,24 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Main.cpp",
-              "DocumentMoniker": "D:\\FTN\\Computer Graphics\\KrabbyPattyGL\\Source\\Main.cpp",
-              "RelativeDocumentMoniker": "Source\\Main.cpp",
-              "ToolTip": "D:\\FTN\\Computer Graphics\\KrabbyPattyGL\\Source\\Main.cpp",
-              "RelativeToolTip": "Source\\Main.cpp",
-              "ViewState": "AgIAAGwBAAAAAAAAAAASwJIBAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-06T10:00:52.654Z",
-              "EditorCaption": ""
             }
           ]
         }

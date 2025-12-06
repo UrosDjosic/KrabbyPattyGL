@@ -13,6 +13,8 @@
 /Release/
 /out/
 /ipch/
+/.vs/
+/KrabbyPattyGL/
 
 # --- VS user-specific files ---
 *.suo
