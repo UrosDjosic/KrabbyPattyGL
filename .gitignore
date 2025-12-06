@@ -1,0 +1,80 @@
+# ================================================
+# Visual Studio C++ Project GitIgnore
+# ================================================
+
+# --- Build outputs ---
+/x64/
+/x86/
+/ARM/
+/ARM64/
+/bin/
+/obj/
+/Debug/
+/Release/
+/out/
+/ipch/
+
+# --- VS user-specific files ---
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+*.opendb
+*.cache
+*.db
+
+# --- Auto-generated project files ---
+*.tlog
+*.log
+*.lastbuildstate
+*.idb
+*.pdb
+*.ilk
+
+# --- NuGet (KEEP packages folder!) ---
+# Do NOT ignore 'packages/'
+# Only ignore auto-generated *cache* and *temp* items:
+.nuget/
+project.lock.json
+*.nupkg
+# but keep the actual restored packages folder:
+# (explicitly allowed)
+!packages/
+
+# --- C++ intermediate stuff ---
+*.obj
+*.pch
+*.pchi
+*.pdb
+*.res
+*.manifest
+*.intermediate.manifest
+*.dep
+*.dmp
+
+# --- GLSL shader cache (if any tools generate it) ---
+*.spv
+
+# --- OS-specific files ---
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS (just in case)
+.DS_Store
+
+# --- Visual Studio Code ---
+.vscode/
+
+# --- CMake (if any future use) ---
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# ================================================
+# END
+# ================================================
