@@ -34,12 +34,8 @@
     <None Include="packages.config" />
     <None Include="rect.vert" />
     <None Include="rect.frag" />
-    <None Include="patty.vert" />
-    <None Include="patty.frag" />
     <None Include="color.vert" />
     <None Include="color.frag" />
-    <None Include="layer.vert" />
-    <None Include="layer.frag" />
     <None Include="basic3d.vert" />
   </ItemGroup>
 </Project>

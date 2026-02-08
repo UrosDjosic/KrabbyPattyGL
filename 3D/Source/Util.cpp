@@ -12,9 +12,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Header/stb_image.h"
 
-// Autor: Nedeljko Tesanovic
-// Opis: pomocne funkcije za zaustavljanje programa, ucitavanje sejdera, tekstura i kursora
-// Smeju se koristiti tokom izrade projekta
+//Autor: Nedeljko Tesanovic
+//Opis: pomocne funkcije za zaustavljanje programa, ucitavanje sejdera, tekstura i kursora
 
 int endProgram(std::string message) {
     std::cout << message << std::endl;
@@ -22,15 +21,13 @@ int endProgram(std::string message) {
     return -1;
 }
 
-unsigned int compileShader(GLenum type, const char* source)
-{
-    //Uzima kod u fajlu na putanji "source", kompajlira ga i vraca sejder tipa "type"
-    //Citanje izvornog koda iz fajla
+unsigned int compileShader(GLenum type, const char* source) {
+    //uzima kod u fajlu na putanji "source", kompajlira ga i vraca sejder tipa "type"
     std::string content = "";
     std::ifstream file(source);
     std::stringstream ss;
-    if (file.is_open())
-    {
+
+    if (file.is_open()) {
         ss << file.rdbuf();
         file.close();
         std::cout << "Uspesno procitao fajl sa putanje \"" << source << "\"!" << std::endl;
@@ -39,20 +36,20 @@ unsigned int compileShader(GLenum type, const char* source)
         ss << "";
         std::cout << "Greska pri citanju fajla sa putanje \"" << source << "\"!" << std::endl;
     }
+
     std::string temp = ss.str();
-    const char* sourceCode = temp.c_str(); //Izvorni kod sejdera koji citamo iz fajla na putanji "source"
+    const char* sourceCode = temp.c_str();
 
-    int shader = glCreateShader(type); //Napravimo prazan sejder odredjenog tipa (vertex ili fragment)
+    int shader = glCreateShader(type);
+    int success;
+    char infoLog[512];
 
-    int success; //Da li je kompajliranje bilo uspjesno (1 - da)
-    char infoLog[512]; //Poruka o gresci (Objasnjava sta je puklo unutar sejdera)
-    glShaderSource(shader, 1, &sourceCode, NULL); //Postavi izvorni kod sejdera
-    glCompileShader(shader); //Kompajliraj sejder
+    glShaderSource(shader, 1, &sourceCode, NULL);
+    glCompileShader(shader);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success); //Provjeri da li je sejder uspjesno kompajliran
-    if (success == GL_FALSE)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog); //Pribavi poruku o gresci
+    if (success == GL_FALSE) {
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
         if (type == GL_VERTEX_SHADER)
             printf("VERTEX");
         else if (type == GL_FRAGMENT_SHADER)
@@ -60,39 +57,32 @@ unsigned int compileShader(GLenum type, const char* source)
         printf(" sejder ima gresku! Greska: \n");
         printf(infoLog);
     }
+
     return shader;
 }
-unsigned int createShader(const char* vsSource, const char* fsSource)
-{
-    //Pravi objedinjeni sejder program koji se sastoji od Vertex sejdera ciji je kod na putanji vsSource
 
-    unsigned int program; //Objedinjeni sejder
-    unsigned int vertexShader; //Verteks sejder (za prostorne podatke)
-    unsigned int fragmentShader; //Fragment sejder (za boje, teksture itd)
+unsigned int createShader(const char* vsSource, const char* fsSource) {
+    //pravi objedinjeni sejder program koji se sastoji od vertex sejdera ciji je kod na putanji vsSource
+    unsigned int program = glCreateProgram();
+    unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vsSource);
+    unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fsSource);
 
-    program = glCreateProgram(); //Napravi prazan objedinjeni sejder program
-
-    vertexShader = compileShader(GL_VERTEX_SHADER, vsSource); //Napravi i kompajliraj vertex sejder
-    fragmentShader = compileShader(GL_FRAGMENT_SHADER, fsSource); //Napravi i kompajliraj fragment sejder
-
-    //Zakaci verteks i fragment sejdere za objedinjeni program
     glAttachShader(program, vertexShader);
     glAttachShader(program, fragmentShader);
-
-    glLinkProgram(program); //Povezi ih u jedan objedinjeni sejder program
-    glValidateProgram(program); //Izvrsi provjeru novopecenog programa
+    glLinkProgram(program);
+    glValidateProgram(program);
 
     int success;
     char infoLog[512];
-    glGetProgramiv(program, GL_VALIDATE_STATUS, &success); //Slicno kao za sejdere
-    if (success == GL_FALSE)
-    {
+    glGetProgramiv(program, GL_VALIDATE_STATUS, &success);
+
+    if (success == GL_FALSE) {
         glGetShaderInfoLog(program, 512, NULL, infoLog);
         std::cout << "Objedinjeni sejder ima gresku! Greska: \n";
         std::cout << infoLog << std::endl;
     }
 
-    //Posto su kodovi sejdera u objedinjenom sejderu, oni pojedinacni programi nam ne trebaju, pa ih brisemo zarad ustede na memoriji
+    //brisemo pojedinacne sejdere jer su vec u objedinjenom programu
     glDetachShader(program, vertexShader);
     glDeleteShader(vertexShader);
     glDetachShader(program, fragmentShader);
@@ -102,23 +92,20 @@ unsigned int createShader(const char* vsSource, const char* fsSource)
 }
 
 unsigned loadImageToTexture(const char* filePath) {
-    int TextureWidth;
-    int TextureHeight;
-    int TextureChannels;
+    int TextureWidth, TextureHeight, TextureChannels;
     unsigned char* ImageData = stbi_load(filePath, &TextureWidth, &TextureHeight, &TextureChannels, 0);
-    if (ImageData != NULL)
-    {
-        //Slike se osnovno ucitavaju naopako pa se moraju ispraviti da budu uspravne
+
+    if (ImageData != NULL) {
+        //slike se osnovno ucitavaju naopako pa se moraju ispraviti
         stbi__vertical_flip(ImageData, TextureWidth, TextureHeight, TextureChannels);
 
-        // Provjerava koji je format boja ucitane slike
-        GLint InternalFormat = -1;
+        //provera formata boja ucitane slike
+        GLint InternalFormat = GL_RGB;
         switch (TextureChannels) {
         case 1: InternalFormat = GL_RED; break;
         case 2: InternalFormat = GL_RG; break;
         case 3: InternalFormat = GL_RGB; break;
         case 4: InternalFormat = GL_RGBA; break;
-        default: InternalFormat = GL_RGB; break;
         }
 
         unsigned int Texture;
@@ -126,12 +113,10 @@ unsigned loadImageToTexture(const char* filePath) {
         glBindTexture(GL_TEXTURE_2D, Texture);
         glTexImage2D(GL_TEXTURE_2D, 0, InternalFormat, TextureWidth, TextureHeight, 0, InternalFormat, GL_UNSIGNED_BYTE, ImageData);
         glBindTexture(GL_TEXTURE_2D, 0);
-        // oslobadjanje memorije zauzete sa stbi_load posto vise nije potrebna
         stbi_image_free(ImageData);
         return Texture;
     }
-    else
-    {
+    else {
         std::cout << "Textura nije ucitana! Putanja texture: " << filePath << std::endl;
         stbi_image_free(ImageData);
         return 0;
@@ -139,21 +124,17 @@ unsigned loadImageToTexture(const char* filePath) {
 }
 
 GLFWcursor* loadImageToCursor(const char* filePath) {
-    int TextureWidth;
-    int TextureHeight;
-    int TextureChannels;
-
+    int TextureWidth, TextureHeight, TextureChannels;
     unsigned char* ImageData = stbi_load(filePath, &TextureWidth, &TextureHeight, &TextureChannels, 0);
 
-    if (ImageData != NULL)
-    {
+    if (ImageData != NULL) {
         GLFWimage image;
         image.width = TextureWidth;
         image.height = TextureHeight;
         image.pixels = ImageData;
 
-        // Tacka na površini slike kursora koja se ponaša kao hitboks, moze se menjati po potrebi
-        // Trenutno je gornji levi ugao, odnosno na 20% visine i 20% sirine slike kursora
+        //tacka na površini slike kursora koja se ponaša kao hitboks
+        //trenutno je na 20% visine i 20% sirine slike kursora
         int hotspotX = TextureWidth / 5;
         int hotspotY = TextureHeight / 5;
 
@@ -164,7 +145,7 @@ GLFWcursor* loadImageToCursor(const char* filePath) {
     else {
         std::cout << "Kursor nije ucitan! Putanja kursora: " << filePath << std::endl;
         stbi_image_free(ImageData);
-
+        return nullptr;
     }
 }
 
@@ -177,11 +158,10 @@ std::map<std::string, Material> loadMTL(const char* mtlPath) {
         return materials;
     }
 
-    std::string line;
-    std::string currentMaterialName;
+    std::string line, currentMaterialName;
     Material currentMaterial{};
 
-    // Default values
+    //default values
     currentMaterial.ambient = glm::vec3(1.0f);
     currentMaterial.diffuse = glm::vec3(0.8f);
     currentMaterial.specular = glm::vec3(0.5f);
@@ -193,13 +173,13 @@ std::map<std::string, Material> loadMTL(const char* mtlPath) {
         iss >> prefix;
 
         if (prefix == "newmtl") {
-            // Save previous material if exists
+            //save previous material if exists
             if (!currentMaterialName.empty()) {
                 materials[currentMaterialName] = currentMaterial;
             }
-            // Start new material
+
+            //start new material
             iss >> currentMaterialName;
-            // Reset to defaults
             currentMaterial.ambient = glm::vec3(1.0f);
             currentMaterial.diffuse = glm::vec3(0.8f);
             currentMaterial.specular = glm::vec3(0.5f);
@@ -219,7 +199,7 @@ std::map<std::string, Material> loadMTL(const char* mtlPath) {
         }
     }
 
-    // Save last material
+    //save last material
     if (!currentMaterialName.empty()) {
         materials[currentMaterialName] = currentMaterial;
     }
@@ -240,7 +220,7 @@ Model loadOBJModel(const char* objPath, const char* mtlPath) {
     model.vertexCount = 0;
     model.currentMaterial = "";
 
-    // Load MTL file if provided
+    //load MTL file if provided
     if (mtlPath != nullptr) {
         model.materials = loadMTL(mtlPath);
     }
@@ -251,8 +231,7 @@ Model loadOBJModel(const char* objPath, const char* mtlPath) {
         return model;
     }
 
-    std::string line;
-    std::string currentMaterial = "";
+    std::string line, currentMaterial;
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
@@ -286,30 +265,32 @@ Model loadOBJModel(const char* objPath, const char* mtlPath) {
                 Vertex vertex{};
                 int posIdx = 0, uvIdx = 0, normIdx = 0;
 
-                // Handle different face formats: v, v/vt, v/vt/vn, v//vn
+                //handle different face formats: v, v/vt, v/vt/vn, v//vn
                 if (sscanf(vertexStr.c_str(), "%d/%d/%d", &posIdx, &uvIdx, &normIdx) == 3) {
-                    // v/vt/vn
+                    //v/vt/vn format
                 }
                 else if (sscanf(vertexStr.c_str(), "%d//%d", &posIdx, &normIdx) == 2) {
-                    // v//vn
+                    //v//vn format
                     uvIdx = 0;
                 }
                 else if (sscanf(vertexStr.c_str(), "%d/%d", &posIdx, &uvIdx) == 2) {
-                    // v/vt
+                    //v/vt format
                     normIdx = 0;
                 }
                 else if (sscanf(vertexStr.c_str(), "%d", &posIdx) == 1) {
-                    // v
+                    //v format
                     uvIdx = 0;
                     normIdx = 0;
                 }
 
+                //load position
                 if (posIdx > 0 && posIdx <= temp_positions.size()) {
                     vertex.x = temp_positions[posIdx - 1].x;
                     vertex.y = temp_positions[posIdx - 1].y;
                     vertex.z = temp_positions[posIdx - 1].z;
                 }
 
+                //load UV coordinates
                 if (uvIdx > 0 && uvIdx <= temp_uvs.size()) {
                     vertex.u = temp_uvs[uvIdx - 1].x;
                     vertex.v = temp_uvs[uvIdx - 1].y;
@@ -319,13 +300,14 @@ Model loadOBJModel(const char* objPath, const char* mtlPath) {
                     vertex.v = 0.0f;
                 }
 
+                //load normal
                 if (normIdx > 0 && normIdx <= temp_normals.size()) {
                     vertex.nx = temp_normals[normIdx - 1].x;
                     vertex.ny = temp_normals[normIdx - 1].y;
                     vertex.nz = temp_normals[normIdx - 1].z;
                 }
                 else {
-                    // Default normal pointing up
+                    //default normal pointing up
                     vertex.nx = 0.0f;
                     vertex.ny = 1.0f;
                     vertex.nz = 0.0f;
@@ -346,7 +328,7 @@ Model loadOBJModel(const char* objPath, const char* mtlPath) {
         return model;
     }
 
-    // Create VAO/VBO
+    //create VAO/VBO
     unsigned int VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -355,15 +337,15 @@ Model loadOBJModel(const char* objPath, const char* mtlPath) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-    // Position attribute
+    //position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Normal attribute
+    //normal attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // Texture coordinate attribute
+    //texture coordinate attribute
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 

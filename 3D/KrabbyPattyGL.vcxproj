@@ -135,10 +135,6 @@
     <None Include="basic3d.vert" />
     <None Include="color.frag" />
     <None Include="color.vert" />
-    <None Include="layer.frag" />
-    <None Include="layer.vert" />
-    <None Include="patty.frag" />
-    <None Include="patty.vert" />
     <None Include="rect.frag" />
     <None Include="rect.vert" />
     <None Include="packages.config" />
